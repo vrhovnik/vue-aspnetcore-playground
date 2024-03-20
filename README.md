@@ -26,11 +26,11 @@ If you will be working on your local machines, you will need to have:
 
 There are different ways to install Vue.js, the easiest is adding reference to CDN via script tag:
 
-``
+```js
 
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
-``
+```
 
 ## Solutions and wireframes
 
