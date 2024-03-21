@@ -403,4 +403,5 @@ FodyWeavers.xsd
 *.msp
 
 # JetBrains Rider
-*.sln.iml
+*.sln.iml# GitHub Copilot persisted chat sessions
+/copilot/chatSessions

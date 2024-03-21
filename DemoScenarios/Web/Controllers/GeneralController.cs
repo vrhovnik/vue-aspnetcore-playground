@@ -45,4 +45,6 @@ public class GeneralController(ILogger<GeneralController> logger, IOptions<Defau
         logger.LogInformation("Returned {Count} results.", list.Count());
         return Ok(list);
     }
+    
+    
 }

@@ -1,0 +1,71 @@
+﻿@page
+@using Web.Helpers
+@model Web.Pages.Data.SearchApiWithFiltersPageModel
+
+@{
+    ViewData["Title"] = "Calling the API with search parameters";
+}
+
+<div id="app">
+    <div class="row">
+        <div class="col-3">
+            <h3>Filters</h3>
+            <select class="form-select mb-3 mt-3">
+                @foreach (var category in Model.Categories)
+                {
+                    <option value="@category.CategoryId">@category.Name</option>
+                }
+            </select>
+        </div>
+        <div class="col-8">
+            <div class="form-floating mb-3">
+                <input type="search" class="form-control" id="tbQuery"
+                       tabindex="0"
+                       autofocus v-on:keyup.enter="callSearchAPI"
+                       v-model="query"
+                       placeholder="I want to search with this terms">
+                <label for="tbQuery">Enter search term search the data</label>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts
+{
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script>
+      const { createApp, ref } = Vue
+      const query = ref('');   
+      let isLoading = ref(false);
+      let searchResults = ref([]);
+      createApp({
+        setup() {        
+          return {
+            query,
+            callSearchAPI,
+            searchResults,
+            isLoading
+          }
+        }
+      }).mount('#app')
+      
+      function callSearchAPI(e) {
+        console.log('searching with ' + query);
+        const value = e.target.value.trim()        
+        if (value) {            
+          isLoading.value = true;  
+          fetch('/@RouteHelper.GeneralApiRoute/@RouteHelper.SearchApiRoute/' + value)
+            .then(response => response.json())
+            .then(data => {
+              console.log(data);
+              searchResults.value = data;
+            });
+          isLoading.value = false;
+        }
+        else {
+          searchResults.value = [];
+        }
+      }           
+    </script>
+}

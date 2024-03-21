@@ -2,13 +2,15 @@ using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Web.Helpers;
 using Web.Options;
+using Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<DefaultWebOptions>(builder.Configuration
     .GetSection(OptionsHelper.DefaultWebOptions));
 builder.Services.AddHealthChecks();
 builder.Services.AddHealthChecksUI().AddInMemoryStorage();
-
+builder.Services.AddHttpClient<CategoriesHttpService>();
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddRazorPages().AddRazorPagesOptions(options =>
     options.Conventions.AddPageRoute("/Info/Index", ""));
 
