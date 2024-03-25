@@ -7,7 +7,8 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="~/css/site.css" />
     <script data-auto-replace-svg="nest"
-                src="https://use.fontawesome.com/releases/v6.1.1/js/all.js"></script>
+            src="https://use.fontawesome.com/releases/v6.1.1/js/all.js"></script>
+    @await RenderSectionAsync("Header", required: false)
 </head>
 <body>
 <header>

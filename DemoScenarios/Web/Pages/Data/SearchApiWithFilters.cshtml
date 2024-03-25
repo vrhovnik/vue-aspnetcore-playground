@@ -6,18 +6,35 @@
     ViewData["Title"] = "Calling the API with search parameters";
 }
 
+@section Header
+{
+    <style>
+        .right-gradient-bdr {
+            border-width: 1px;
+            border-style: solid;
+            border-left:0;
+            padding: 5px;
+            border-image:        
+            linear-gradient(rgba(0,0,0,0), rgba(0,0,0,1), rgba(0,0,0,0)) 0 100%;
+        }        
+    </style>
+}
+
+
 <div id="app">
     <div class="row">
         <div class="col-3">
-            <h3>Filters</h3>
-            <select class="form-select mb-3 mt-3">
-                @foreach (var category in Model.Categories)
-                {
-                    <option value="@category.CategoryId">@category.Name</option>
-                }
-            </select>
+            <div class="right-gradient-bdr">
+                <h3>Filters</h3>
+                <select class="form-select mb-3 mt-3">
+                    @foreach (var category in Model.Categories)
+                    {
+                        <option value="@category.CategoryId">@category.Name</option>
+                    }
+                </select>
+            </div>
         </div>
-        <div class="col-8">
+        <div class="col-9">
             <div class="form-floating mb-3">
                 <input type="search" class="form-control" id="tbQuery"
                        tabindex="0"
@@ -25,8 +42,12 @@
                        v-model="query"
                        placeholder="I want to search with this terms">
                 <label for="tbQuery">Enter search term search the data</label>
+                <div class="text-xl-center mt-lg-5" v-if="searchResults">
+                    There is no data based on filters!
+                </div>
             </div>
         </div>
+
     </div>
 
 </div>
