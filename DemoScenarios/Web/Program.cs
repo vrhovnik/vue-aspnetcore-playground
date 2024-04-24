@@ -10,6 +10,7 @@ builder.Services.Configure<DefaultWebOptions>(builder.Configuration
 builder.Services.AddHealthChecks();
 builder.Services.AddHealthChecksUI().AddInMemoryStorage();
 builder.Services.AddHttpClient<CategoriesHttpService>();
+builder.Services.AddHttpClient<GeneralHttpService>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddRazorPages().AddRazorPagesOptions(options =>
     options.Conventions.AddPageRoute("/Info/Index", ""));

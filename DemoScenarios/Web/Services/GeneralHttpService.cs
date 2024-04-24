@@ -1,47 +1,46 @@
-﻿using System.Text.Json.Serialization;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Web.Helpers;
 using Web.Models;
 
 namespace Web.Services;
 
-public class CategoriesHttpService(
+public class GeneralHttpService(
     HttpClient httpClient,
     IHttpContextAccessor httpContextAccessor,
-    ILogger<CategoriesHttpService> logger)
+    ILogger<GeneralHttpService> logger)
 {
     public async Task<string> IsAlive()
     {
-        logger.LogInformation("IsAlive  from server side called at {DateLoaded}, waiting for response from API.",
+        logger.LogInformation("IsAlive from server side called at {DateLoaded}, waiting for response from API.",
             DateTime.Now);
         return await httpClient.GetStringAsync(RouteHelper.HealthApiRoute);
     }
 
-    public async Task<IEnumerable<CategoryModel>> GetGeneralCategories(int count = 20)
+    public async Task<SearchResult[]> SearchAsync(string query)
     {
         logger.LogInformation(
-            "GetGeneralCategories from server side called at {DateLoaded} with {Count} categories request, waiting for response from API.",
-            DateTime.Now, count);
+            "Get genera from server side called at {DateLoaded} with {Query} request, waiting for response from API.",
+            DateTime.Now, query);
         var url =
             $"{httpContextAccessor.HttpContext?.Request.Scheme}://" +
             $"{httpContextAccessor.HttpContext?.Request.Host}{httpContextAccessor.HttpContext?.Request.PathBase}" +
-            $"/{RouteHelper.CategoryApiRoute}/{RouteHelper.GetAllApiRoute}/{count}";
+            $"/{RouteHelper.GeneralApiRoute}/{RouteHelper.SearchApiRoute}/{query}";
         var result = await httpClient.GetAsync(url);
         if (!result.IsSuccessStatusCode)
         {
             logger.LogError("Error while fetching categories from api. {StatusCode} {ReasonPhrase}",
                 result.StatusCode, result.ReasonPhrase);
-            return Array.Empty<CategoryModel>();
+            return Array.Empty<SearchResult>();
         }
 
         var data = await result.Content.ReadAsStringAsync();
         if (string.IsNullOrEmpty(data))
         {
             logger.LogInformation("No data found for categories.");
-            return Array.Empty<CategoryModel>();
+            return Array.Empty<SearchResult>();
         }
 
-        var currentList = JsonConvert.DeserializeObject<CategoryModel[]>(data) ?? [];
+        var currentList = JsonConvert.DeserializeObject<SearchResult[]>(data) ?? [];
         logger.LogInformation("Found {Count} categories from api.", currentList.Length);
         return currentList;
     }

@@ -1,9 +1,8 @@
 ﻿@page
-@using Web.Helpers
-@model Web.Pages.Data.SearchApiCallPageModel
+@model Web.Pages.Data.SearchApiFromCodeBehindPageModel
 
 @{
-    ViewData["Title"] = "Calling the API with search parameters";
+    ViewData["Title"] = "Search Api From Code Behind";
 }
 
 <div id="app">
@@ -11,7 +10,7 @@
         <input type="search" class="form-control" id="tbQuery"
                tabindex="0"
                autofocus v-on:keyup.enter="callSearchAPI" v-model="query" placeholder="I want to search with this terms">
-        <label for="tbQuery">Enter search term search the data</label>
+        <label for="tbQuery">Enter search term search the data from code behind</label>
     </div>
     <div class="row row-cols-1 row-cols-md-2 g-4" v-if="searchResults.length">
         <div class="col" v-for="currentSearchTerm in searchResults" :key="currentSearchTerm.id">
@@ -64,8 +63,10 @@
         console.log('searching with ' + query);
         const value = e.target.value.trim()        
         if (value) {            
-          isLoading.value = true;  
-          fetch('/@RouteHelper.GeneralApiRoute/@RouteHelper.SearchApiRoute/' + value)
+          isLoading.value = true;
+          let searchUrl = '@Url.Page("SearchApiFromCodeBehind","Search")' + "&query=" + value;
+          console.log("Search url is " + searchUrl);  
+          fetch(searchUrl)
             .then(response => response.json())
             .then(data => {
               console.log(data);
