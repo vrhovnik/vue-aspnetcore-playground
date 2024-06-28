@@ -4,14 +4,14 @@ using Web.Models;
 
 namespace Web.Services;
 
-public class GeneralHttpService(
+public class MemoryHttpService(
     HttpClient httpClient,
     IHttpContextAccessor httpContextAccessor,
-    ILogger<GeneralHttpService> logger)
+    ILogger<MemoryHttpService> logger)
 {
     public async Task<string> IsAlive()
     {
-        logger.LogInformation("IsAlive from server side called at {DateLoaded}, waiting for response from API.",
+        logger.LogInformation("IsAlive from server side Memory called at {DateLoaded}, waiting for response from API.",
             DateTime.Now);
         return await httpClient.GetStringAsync(RouteHelper.HealthApiRoute);
     }
@@ -19,16 +19,16 @@ public class GeneralHttpService(
     public async Task<SearchResult[]> SearchAsync(string query)
     {
         logger.LogInformation(
-            "Get genera from server side called at {DateLoaded} with {Query} request, waiting for response from API.",
+            "Get generated from server side called at {DateLoaded} with {Query} request, waiting for response from API.",
             DateTime.Now, query);
         var url =
             $"{httpContextAccessor.HttpContext?.Request.Scheme}://" +
             $"{httpContextAccessor.HttpContext?.Request.Host}{httpContextAccessor.HttpContext?.Request.PathBase}" +
-            $"/{RouteHelper.GeneralApiRoute}/{RouteHelper.SearchApiRoute}/{query}";
+            $"/{RouteHelper.MemoryApiRoute}/{RouteHelper.SearchApiRoute}/{query}";
         var result = await httpClient.GetAsync(url);
         if (!result.IsSuccessStatusCode)
         {
-            logger.LogError("Error while fetching data from api. {StatusCode} {ReasonPhrase}",
+            logger.LogError("Error while fetching search results from api. {StatusCode} {ReasonPhrase}",
                 result.StatusCode, result.ReasonPhrase);
             return [];
         }
@@ -36,7 +36,7 @@ public class GeneralHttpService(
         var data = await result.Content.ReadAsStringAsync();
         if (string.IsNullOrEmpty(data))
         {
-            logger.LogInformation("No data found for searching.");
+            logger.LogInformation("No data found for search.");
             return [];
         }
 

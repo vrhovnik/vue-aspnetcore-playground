@@ -20,7 +20,7 @@ public class GeneralController(ILogger<GeneralController> logger, IOptions<Defau
     {
         var currentTime = DateTime.Now;
         logger.LogInformation("IsAlive called at {DateCalled}.", currentTime);
-        return Ok($"I'm alive at {currentTime} and running on {Environment.MachineName}!");
+        return Ok($"I'm alive (GeneralController) at {currentTime} and running on {Environment.MachineName}!");
     }
 
     [HttpGet]
