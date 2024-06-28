@@ -1,0 +1,95 @@
+﻿@page
+@model Web.Pages.Data.SearchApiReloadPageModel
+
+@{
+    ViewData["Title"] = "Search Api Reload";
+}
+
+<div id="app">
+    <div class="form-floating mb-3">
+        <input type="search" class="form-control" id="tbQuery"
+               tabindex="0"
+               autofocus v-on:keyup.enter="callSearchAPI" v-model="query" placeholder="I want to search with this terms">
+        <label for="tbQuery">Enter search term search the data from code behind</label>
+    </div>
+    <div class="row row-cols-1 row-cols-md-2 g-4" v-if="searchResults.length">
+        <div class="col" v-for="currentSearchTerm in searchResults" :key="currentSearchTerm.id">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ currentSearchTerm.title }}</h5>
+                    <p class="card-text">{{ currentSearchTerm.description }}</p>
+                    <p class="card-text">
+                        <small class="text-body-secondary">
+                            Generated at: {{ currentSearchTerm.generatedAt }}
+                        </small>
+                    </p>
+                </div>
+                <div class="card-footer text-body-secondary">
+                    Go to <a :href="currentSearchTerm.url" class="card-link">the page</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="text-info" v-else>
+        <div v-if="isLoading">
+            Loading data from the server...
+        </div>
+        <div v-else>
+            No data has been retrieved.
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    @await Html.PartialAsync("_VueJs")
+    @await Html.PartialAsync("_Vuetify")
+    <script>
+        const { createApp, ref } = Vue
+        const { createVuetify } = Vuetify
+        const vuetify = createVuetify();
+        const query = ref('');
+        let isLoading = ref(false);
+        let searchResults = ref([]);
+        const app = createApp({
+            setup() {
+                return {
+                    query,
+                    callSearchAPI,
+                    searchResults,
+                    isLoading
+                }
+            },
+            mounted() {
+                console.log('mounted and loading default search data...');
+                callSearchAPI();
+            }
+        });
+        app.use(vuetify).mount('#app');
+
+        function callSearchAPI() {
+             console.log('searching with ' + query);   
+             let value = query.value;    
+             isLoading.value = true;
+             let searchUrl = '@Url.Page("SearchApiReload", "Search")' + "&query=" + value;
+             console.log("Search url is " + searchUrl);
+             fetch(searchUrl)
+                 .then(response => {
+                     if (!response.ok) {
+                        searchResults.value = [];
+                        return Promise.reject(response);
+                     }
+                     return response.json();
+                 }).then(data => {
+                     console.log(data);
+                     searchResults.value = data;
+                 });
+             isLoading.value = false;
+        }
+    </script>
+}
+
+@section Header
+{
+    @await Html.PartialAsync("_VuetifyStyles")
+}
