@@ -6,6 +6,18 @@
 }
 
 <div id="app">
+    <div class="col-12 mb-3">
+        <v-toolbar >
+            <v-toolbar-title>
+                <b>{{ titleMsg }}</b>
+            </v-toolbar-title>
+            <v-toolbar-items>
+                <v-btn v-on:click="copyVueJsCode">Copy VueJS code</v-btn>
+                <v-spacer></v-spacer>
+                <v-btn v-on:click="copyCsharpCode">Copy C# code</v-btn>
+            </v-toolbar-items>
+        </v-toolbar>
+    </div>
     <div class="form-floating mb-3">
         <input type="search" class="form-control" id="tbQuery"
                tabindex="0"
@@ -49,15 +61,19 @@
         const { createVuetify } = Vuetify
         const vuetify = createVuetify();
         const query = ref('');
+        const titleMsg = ref('Operations');
         let isLoading = ref(false);
         let searchResults = ref([]);
         const app = createApp({
             setup() {
                 return {
                     query,
+                    titleMsg,
                     callSearchAPI,
                     searchResults,
-                    isLoading
+                    isLoading,
+                    copyVueJsCode,
+                    copyCsharpCode,
                 }
             },
             mounted() {
@@ -66,6 +82,42 @@
             }
         });
         app.use(vuetify).mount('#app');
+
+        function copyVueJsCode() {
+            console.log("copying code");
+            navigator.clipboard.writeText(`function callSearchAPI() {
+             console.log('searching with ' + query);   
+             let value = query.value;    
+             isLoading.value = true;
+             let searchUrl = '@Url.Page("SearchApiReload", "Search")' + "&query=" + value;
+             console.log("Search url is " + searchUrl);
+             fetch(searchUrl)
+                 .then(response => {
+                     if (!response.ok) {
+                        searchResults.value = [];
+                        return Promise.reject(response);
+                     }
+                     return response.json();
+                 }).then(data => {
+                     console.log(data);
+                     searchResults.value = data;
+                 });
+             isLoading.value = false;
+            }`);
+            titleMsg.value = "VueJS copied to clipboard";
+        }
+
+        function copyCsharpCode() {
+            console.log("copying C# code");
+            navigator.clipboard.writeText(`public async Task<IActionResult> OnGetSearchAsync(string query)
+            {
+                logger.LogInformation("Calling search API with query {Query}", query);
+                var data = await generalHttpService.SearchAsync(query);
+                logger.LogInformation("Search API returned {Count} results", data.Length);
+                return new JsonResult(data);
+            }`);
+            titleMsg.value = "C# code copied to clipboard";
+        }
 
         function callSearchAPI() {
              console.log('searching with ' + query);   

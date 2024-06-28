@@ -1,5 +1,4 @@
 ﻿@page
-@using Bogus
 @using Web.Helpers
 @model Web.Pages.Data.SearchApiReloadClickInsidePageModel
 
@@ -8,6 +7,18 @@
 }
 
 <div id="app">
+    <div class="col-12 mb-3">
+        <v-toolbar >
+            <v-toolbar-title>
+                <b>{{ titleMsg }}</b>
+            </v-toolbar-title>
+            <v-toolbar-items>
+                <v-btn v-on:click="copyVueJsCode">Copy VueJS code</v-btn>
+                <v-spacer></v-spacer>
+                <v-btn v-on:click="copyCsharpCode">Copy C# code</v-btn>
+            </v-toolbar-items>
+        </v-toolbar>
+    </div>
     <div class="form-floating mb-3">
         <input type="search" class="form-control" id="tbQuery"
                tabindex="0"
@@ -50,6 +61,7 @@
         const { createApp, ref } = Vue
         const { createVuetify } = Vuetify
         const vuetify = createVuetify();
+        const titleMsg = ref('Operations');
         const query = ref('');
         const randomValue = ref('');
         let isLoading = ref(false);
@@ -57,12 +69,15 @@
         const app = createApp({
             setup() {
                 return {
-                    query,                    
+                    query,     
+                    titleMsg,               
                     searchResults,
                     isLoading,
                     randomValue,
                     changeMe,
                     callSearchAPI,
+                    copyVueJsCode,
+                    copyCsharpCode
                 }
             },
             mounted() {
@@ -77,6 +92,70 @@
             }
         });
         app.use(vuetify).mount('#app');
+        function copyVueJsCode() {
+            console.log("copying code");
+            navigator.clipboard.writeText(`function callSearchAPI() {
+             console.log('searching with ' + query);   
+             let value = query.value;    
+             isLoading.value = true;
+             let searchUrl = 'SearchUrl' + "&query=" + value;
+             console.log("Search url is " + searchUrl);
+             fetch(searchUrl)
+                 .then(response => {
+                     if (!response.ok) {
+                        searchResults.value = [];
+                        return Promise.reject(response);
+                     }
+                     return response.json();
+                 }).then(data => {
+                     console.log(data);
+                     searchResults.value = data;
+                 });
+             isLoading.value = false;
+                }
+                
+                function changeMe(id){
+                    let newTitle = randomValue.value;
+                    console.log('change me clicked with id: ' + id + ' and value: ' + newTitle);
+                    isLoading.value = true;
+                    let postModel = {
+                        Id: id,
+                        Title: newTitle
+                    };
+                    console.log(postModel);
+                    let subscribeUrl = 'POSTADDURL';
+                    console.log('subscribe url is ' + subscribeUrl);
+                    fetch(subscribeUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(postModel)
+                    }).then(response => {
+                        if (!response.ok) {
+                            console.log("There has been an error while fetching data from the server.");
+                            return Promise.reject(response);
+                        }
+                        callSearchAPI();
+                    });
+                    
+                    isLoading.value = false;
+                }`);
+            titleMsg.value = "VueJS copied to clipboard";
+        }
+
+        function copyCsharpCode() {
+            console.log("copying C# code");
+            navigator.clipboard.writeText(`public async Task<IActionResult> OnGetSearchAsync(string query)
+            {
+                logger.LogInformation("Calling search API with query {Query}", query);
+                var data = await memoryHttpService.SearchAsync(query);
+                logger.LogInformation("Search API returned {Count} results", data.Length);
+                return new JsonResult(data);
+            }`);
+            titleMsg.value = "C# code copied to clipboard";
+        }
 
         function changeMe(id){
             let newTitle = randomValue.value;

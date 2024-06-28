@@ -7,6 +7,16 @@
 }
 
 <div id="app">
+    <div class="col-12 mb-3">
+        <v-toolbar >
+            <v-toolbar-title>
+                <b>{{ titleMsg }}</b>
+            </v-toolbar-title>
+            <v-toolbar-items>
+                <v-btn v-on:click="copyVueJsCode">Copy VueJS code</v-btn>
+            </v-toolbar-items>
+        </v-toolbar>
+    </div>
     <div class="form-floating mb-3">
         <input type="search" class="form-control" id="tbQuery"
                tabindex="0"
@@ -36,7 +46,7 @@
             Loading data from the server...
         </div>
         <div v-else>
-            No data has been retrieved.
+            No data has been retrieved, check operations.
         </div>
     </div>
 </div>
@@ -44,38 +54,70 @@
 @section Scripts
 {
     @await Html.PartialAsync("_VueJs")
+    @await Html.PartialAsync("_Vuetify")
     <script>
-      const { createApp, ref } = Vue
-      const query = ref('');   
-      let isLoading = ref(false);
-      let searchResults = ref([]);
-      createApp({
-        setup() {        
-          return {
-            query,
-            callSearchAPI,
-            searchResults,
-            isLoading
+          const { createApp, ref } = Vue
+          const { createVuetify } = Vuetify
+          const vuetify = createVuetify();
+          const titleMsg = ref('Operations');   
+          const query = ref('');   
+          let isLoading = ref(false);
+          let searchResults = ref([]);
+          const app = createApp({
+            setup() {        
+              return {
+                query,
+                callSearchAPI, 
+                copyVueJsCode,
+                searchResults,
+                isLoading,
+                titleMsg
+              }
+            }
+          });
+          app.use(vuetify).mount('#app');
+          function copyVueJsCode() {
+            console.log("copying code");
+            navigator.clipboard.writeText(`function callSearchAPI(e) {
+            console.log('searching with ' + query);
+            const value = e.target.value.trim()        
+            if (value) {            
+              isLoading.value = true;  
+              fetch('/URL' + value)
+                .then(response => response.json())
+                .then(data => {
+                  console.log(data);
+                  searchResults.value = data;
+                });
+              isLoading.value = false;
+            }
+            else {
+              searchResults.value = [];
+            }
+          }         ;`);
+             titleMsg.value = "Code copied to clipboard";
           }
-        }
-      }).mount('#app')
-      
-      function callSearchAPI(e) {
-        console.log('searching with ' + query);
-        const value = e.target.value.trim()        
-        if (value) {            
-          isLoading.value = true;  
-          fetch('/@RouteHelper.GeneralApiRoute/@RouteHelper.SearchApiRoute/' + value)
-            .then(response => response.json())
-            .then(data => {
-              console.log(data);
-              searchResults.value = data;
-            });
-          isLoading.value = false;
-        }
-        else {
-          searchResults.value = [];
-        }
-      }           
+          function callSearchAPI(e) {
+            console.log('searching with ' + query);
+            const value = e.target.value.trim()        
+            if (value) {            
+              isLoading.value = true;  
+              fetch('/@RouteHelper.GeneralApiRoute/@RouteHelper.SearchApiRoute/' + value)
+                .then(response => response.json())
+                .then(data => {
+                  console.log(data);
+                  searchResults.value = data;
+                });
+              isLoading.value = false;
+            }
+            else {
+              searchResults.value = [];
+            }
+          }           
     </script>
+}
+
+@section Header
+{
+    @await Html.PartialAsync("_VuetifyStyles")
 }

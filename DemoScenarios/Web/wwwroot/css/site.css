@@ -70,3 +70,12 @@ button.accept-policy {
   line-height: 60px;
 }
 
+.code-style {
+  font-family: 'Courier New', monospace;
+  background-color: #f4f4f4;
+  border-left: 3px solid #f36d33;
+  padding: 5px;
+  margin: 10px 0;
+  overflow: auto;
+  white-space: pre;
+}
