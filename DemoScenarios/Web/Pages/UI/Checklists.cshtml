@@ -1,8 +1,92 @@
 @page
+@using Web.Helpers
 @model Web.Pages.UI.ChecklistsPageModel
 
 @{
     ViewData["Title"] = "Working with checklists";
 }
 
-h2
+<h2>Checklist work</h2>
+
+<div id="app">
+    <div class="col-12 mb-3">
+        <v-toolbar >
+            <v-toolbar-title>
+                <b>{{ titleMsg }}</b>
+            </v-toolbar-title>
+            <v-toolbar-items>
+                <v-btn v-on:click="copyVueJsCode">Copy VueJS code</v-btn>
+            </v-toolbar-items>
+        </v-toolbar>
+    </div>
+    <div class="row row-cols-1 row-cols-md-2 g-4" v-if="checkListModels.length">
+        <div class="col" v-for="currentCheckList in checkListModels" :key="currentCheckList.id">
+            <h3>{{ currentCheckList.name }}</h3>
+            <ul>
+                <li v-for="currentModel in currentCheckList.checkLists" :key="currentModel.checkListId">
+                    <input type="checkbox"> {{ currentModel.name }}
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="text-info" v-else>
+        <div v-if="isLoading">
+            Loading data from the server...
+        </div>
+        <div v-else>
+            No data has been retrieved, check operations.
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    @await Html.PartialAsync("_VueJs")
+    @await Html.PartialAsync("_Vuetify")
+    <script>
+    const { createApp, ref } = Vue
+    const { createVuetify } = Vuetify
+    const vuetify = createVuetify();
+    const titleMsg = ref('Checklists');
+    let isLoading = ref(false);
+    let checkListModels = ref([]);
+    const app = createApp({
+        setup() {
+            return {                
+                callCheckListRandomDataAndCategories,
+                copyVueJsCode,
+                checkListModels,
+                isLoading,
+                titleMsg
+            }
+        },
+        mounted(){
+            console.log("Loaded scripts");
+            callCheckListRandomDataAndCategories();
+        }
+    });
+    app.use(vuetify).mount('#app');
+    function copyVueJsCode() {
+        console.log("copying code");
+        navigator.clipboard.writeText(`Code`);
+        titleMsg.value = "Code copied to clipboard";
+    }
+    function callCheckListRandomDataAndCategories() {
+        console.log('Starting calling random data to get checklists');
+        isLoading.value = true;
+        fetch('/@RouteHelper.UiApiRoute/@RouteHelper.ChecklistApiRoute')
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    checkListModels.value = data;
+                });
+        isLoading.value = false;
+        console.log('Done with call random data to get checklists');
+    }
+</script>
+}
+
+@section Header
+{
+    @await Html.PartialAsync("_VuetifyStyles")
+}
